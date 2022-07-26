@@ -20,17 +20,17 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 public class AggregateAnalyticsResponse {
 
     @JsonProperty("results")
-    private List<Result> results = null;
+    private List<AggregateResult> results = null;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("results")
-    public List<Result> getResults() {
+    public List<AggregateResult> getResults() {
         return results;
     }
 
     @JsonProperty("results")
-    public void setResults(List<Result> results) {
+    public void setResults(List<AggregateResult> results) {
         this.results = results;
     }
 

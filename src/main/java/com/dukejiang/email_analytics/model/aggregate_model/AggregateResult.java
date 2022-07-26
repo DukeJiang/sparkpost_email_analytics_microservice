@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "sending_domain"
 })
 @Generated("jsonschema2pojo")
-public class Result {
+public class AggregateResult {
 
     @JsonProperty("count_sent")
     private Integer countSent;

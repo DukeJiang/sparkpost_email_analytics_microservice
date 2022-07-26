@@ -24,7 +24,7 @@ public class AggregateAnalyticsController {
 
     @RequestMapping(value={"/getAggregateAnalytics"}, method = GET)
     @ResponseBody
-    public AggregateAnalyticsResponse getAggregateAnalytics() {
+    public Mono<AggregateAnalyticsResponse> getAggregateAnalytics() {
         log.info("fetching aggregate analytics information...");
         String from = "2022-07-01T00:00";
         Mono<AggregateAnalyticsResponse> response = webClient.get()
@@ -37,6 +37,6 @@ public class AggregateAnalyticsController {
                         .build())
                 .retrieve()
                 .bodyToMono(AggregateAnalyticsResponse.class);
-        return response.block();
+        return response;
     }
 }

@@ -1,6 +1,6 @@
 package com.dukejiang.email_analytics.controller;
 
-import com.dukejiang.email_analytics.model.aggregate_model.AggregateAnalyticsResponse;
+import com.dukejiang.email_analytics.model.individual_model.DeliveryEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,19 +23,20 @@ public class IndividualAnalyticsController {
 
     @RequestMapping(value={"/getIndividualAnalytics"}, method = GET)
     @ResponseBody
-    public AggregateAnalyticsResponse getIndividualAnalytics() {
-        log.info("fetching aggregate analytics information...");
-        String from = "2022-07-01T00:00";
-        Mono<AggregateAnalyticsResponse> response = webClient.get()
+    public Mono<DeliveryEvent> getIndividualAnalytics() {
+        log.info("fetching individual analytics information...");
+        String from = "2022-07-024T00:00"; //Temporary value
+        String recipients = "yuxuanjiang@uchicago.edu"; //Temporary value
+        Mono<DeliveryEvent> response = webClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/api/v1/metrics/deliverability/sending-domain")
+                        .path("/api/v1/events/message")
+                        .queryParam("events", "delivery")
                         .queryParam("from", from)
-                        .queryParam("sending_domain", TESTING_DOMAIN)
-                        .queryParam("metrics", "count_sent,count_accepted,count_delivered,count_" +
-                                "nonprefetched_rendered,count_clicked,count_unique_clicked,count_unsubscribe")
+                        .queryParam("recipients", recipients)
+                        .queryParam("sending_domains", TESTING_DOMAIN)
                         .build())
                 .retrieve()
-                .bodyToMono(AggregateAnalyticsResponse.class);
-        return response.block();
+                .bodyToMono(DeliveryEvent.class);
+        return response;
     }
 }
