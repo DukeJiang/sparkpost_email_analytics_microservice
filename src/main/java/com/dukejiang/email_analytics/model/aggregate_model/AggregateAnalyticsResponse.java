@@ -11,37 +11,24 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-    "results"
-})
-@Generated("jsonschema2pojo")
+//@JsonInclude(JsonInclude.Include.NON_NULL)
+//@JsonPropertyOrder({
+//    "results"
+//})
+//@Generated("jsonschema2pojo")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class AggregateAnalyticsResponse {
-
     @JsonProperty("results")
-    private List<AggregateResult> results = null;
+    private List<AggregateResult> results;
     @JsonIgnore
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    private Map<String, Object> additionalProperties;
 
-    @JsonProperty("results")
-    public List<AggregateResult> getResults() {
-        return results;
-    }
-
-    @JsonProperty("results")
-    public void setResults(List<AggregateResult> results) {
-        this.results = results;
-    }
-
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
-    }
-
-    @JsonAnySetter
-    public void setAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
-    }
 
 }
+
