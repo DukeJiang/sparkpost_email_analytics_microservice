@@ -16,5 +16,5 @@ import java.util.Map;
 public class Event {
     @JsonProperty("message_event")
     @JsonAlias({"track_event", "gen_event", "unsubscribe_event", "relay_event"})
-    private Map<String, EventDetail>  eventDetail;
+    private EventDetail eventDetail;
 }

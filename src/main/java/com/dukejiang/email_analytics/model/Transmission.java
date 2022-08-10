@@ -15,7 +15,10 @@ public class Transmission extends BaseEntity{
     @Column(name = "id")
     private int id;
 
+    @Column(name = "audience_email")
+    private String audience_email;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "audience_id", referencedColumnName = "id", nullable = false)
-    private Audience audience_id;
+    private Audience audience;
 }

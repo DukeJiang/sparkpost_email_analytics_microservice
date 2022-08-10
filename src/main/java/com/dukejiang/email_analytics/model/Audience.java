@@ -44,7 +44,7 @@ public class Audience extends BaseEntity{
     @NotNull
     private String source;
 
-    @OneToMany(mappedBy = "audience_id", fetch = FetchType.LAZY,
+    @OneToMany(mappedBy = "audience", fetch = FetchType.LAZY,
             cascade = CascadeType.PERSIST, targetEntity = Transmission.class)
     private Set<Transmission> transmissions;
 }

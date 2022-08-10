@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AudienceActivityRepository extends CrudRepository<AudienceActivity, Integer> {
+    int countAllByEventType(String eventType);
 }
