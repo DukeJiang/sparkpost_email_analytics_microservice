@@ -19,5 +19,6 @@ public class IndividualAnalyticsResponse {
     private int countOpened;
     @JsonProperty("count_unsubscribe")
     private int countUnsubscribe;
-
+    @JsonProperty("count_bounced")
+    private int countBounced;
 }

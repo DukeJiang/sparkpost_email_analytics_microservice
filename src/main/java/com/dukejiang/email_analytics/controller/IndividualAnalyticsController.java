@@ -1,20 +1,20 @@
 package com.dukejiang.email_analytics.controller;
 
 import com.dukejiang.email_analytics.model.Audience;
+import com.dukejiang.email_analytics.model.request.IndividualAnalyticsRequest;
 import com.dukejiang.email_analytics.model.individual_model.IndividualAnalyticsResponse;
 import com.dukejiang.email_analytics.repository.AudienceActivityRepository;
 import com.dukejiang.email_analytics.repository.AudienceRepository;
 import com.dukejiang.email_analytics.repository.TransmissionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.http.RequestEntity;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.sql.Timestamp;
 import java.util.Optional;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -29,6 +29,7 @@ public class IndividualAnalyticsController {
         open,
         list_unsubscribe,
         link_unsubscribe,
+        bounce
     }
 
     @Autowired
@@ -40,11 +41,6 @@ public class IndividualAnalyticsController {
     @Autowired
     TransmissionRepository transmissionRepository;
 
-    @Value("${TESTING_DOMAIN}")
-    private String TESTING_DOMAIN;
-
-    @Autowired
-    WebClient webClient;
 
     /**
      * sends back the aggregated count of each event types in audience_activity table
@@ -52,25 +48,35 @@ public class IndividualAnalyticsController {
      */
     @RequestMapping(value={"/getIndividualAnalytics"}, method = GET)
     @ResponseBody
-    public Mono<IndividualAnalyticsResponse> getIndividualAnalytics(@RequestParam(name = "audience_id") int audienceId) {
+    public Mono<IndividualAnalyticsResponse> getIndividualAnalytics(RequestEntity<IndividualAnalyticsRequest> requestEntity) {
         log.info("fetching individual analytics information...");
+        IndividualAnalyticsRequest incomingRequest = requestEntity.getBody();
+        assert incomingRequest != null;
+        int audienceId = incomingRequest.getAudienceId();
+        Timestamp from = incomingRequest.getFrom();
+        Timestamp to = incomingRequest.getTo();
+
         //find target audience
         Optional<Audience> audience = audienceRepository.findById(audienceId);
         assert audience.isPresent();
         //get total transmission count
         int totalTransmissionCnt = transmissionRepository.countAllByAudience(audience.get());
         //get each event type count
-        int deliveryCnt = audienceActivityRepository.countAllByEventType(EventType.delivery.toString());
-        int clickCnt = audienceActivityRepository.countAllByEventType(EventType.click.toString());
-        int openCnt = audienceActivityRepository.countAllByEventType(EventType.open.toString());
-        int unsubscribeCnt = audienceActivityRepository.countAllByEventType(EventType.list_unsubscribe.toString()) +
-                                audienceActivityRepository.countAllByEventType(EventType.link_unsubscribe.toString());
+        int deliveryCnt = audienceActivityRepository.countAllByEventTypeAndByCreateAtBetween(EventType.delivery.toString(), from, to);
+        int clickCnt = audienceActivityRepository.countAllByEventTypeAndByCreateAtBetween(EventType.click.toString(), from, to);
+        int openCnt = audienceActivityRepository.countAllByEventTypeAndByCreateAtBetween(EventType.open.toString(), from, to);
+        int unsubscribeCnt = audienceActivityRepository.countAllByEventTypeAndByCreateAtBetween(EventType.list_unsubscribe.toString(), from, to) +
+                                audienceActivityRepository.countAllByEventTypeAndByCreateAtBetween(EventType.link_unsubscribe.toString(), from ,to);
+        int bounceCnt = audienceActivityRepository.countAllByEventTypeAndByCreateAtBetween(EventType.bounce.toString(), from, to);
+
+        //compose response
         IndividualAnalyticsResponse response = new IndividualAnalyticsResponse();
         response.setCountSent(totalTransmissionCnt);
         response.setCountClicked(clickCnt);
         response.setCountDelivered(deliveryCnt);
         response.setCountOpened(openCnt);
         response.setCountUnsubscribe(unsubscribeCnt);
+        response.setCountBounced(bounceCnt);
 
         return Mono.just(response);
     }

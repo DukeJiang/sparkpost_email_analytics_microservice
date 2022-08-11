@@ -20,11 +20,20 @@ CREATE TABLE IF NOT EXISTS `user`(
     `contact_email` VARCHAR(255),
     `contact_phone` VARCHAR(255),
     `address` VARCHAR(255),
-    `api_key` BIGINT NOT NULL,
+    `api_key` VARCHAR(255) NOT NULL,
     `salesforce_api_key` VARCHAR(255),
     `shopify_api_key` VARCHAR(255),
     `hubspot_api_key` VARCHAR(255),
     `facebook_ads_api_key` VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS `audience_list`(
+      `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+      `created_at` TIMESTAMP NOT NULL,
+      `created_by` VARCHAR(255) NOT NULL,
+      `updated_at` TIMESTAMP DEFAULT NULL,
+      `update_by` VARCHAR(255) DEFAULT NULL,
+      `name` VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS `campaign`(
@@ -109,7 +118,8 @@ CREATE TABLE IF NOT EXISTS `node`(
   `update_by` VARCHAR(255) DEFAULT NULL,
   `name` VARCHAR(255) NOT NULL,
   `type` VARCHAR(10) NOT NULL,
-  `status` VARCHAR(10) NOT NULL
+  `status` VARCHAR(10) NOT NULL,
+  `neighbors_serialized` TEXT
 );
 
 CREATE TABLE IF NOT EXISTS `time_event`(
@@ -141,7 +151,8 @@ CREATE TABLE IF NOT EXISTS `audience`(
   `address` TEXT,
   `phone` VARCHAR(255),
   `birthday` TIMESTAMP,
-  `source` VARCHAR(255) NOT NULL
+  `source` VARCHAR(255) NOT NULL,
+  `marketing_consent` int DEFAULT 1 NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS `tag`(
@@ -199,15 +210,6 @@ CREATE TABLE IF NOT EXISTS `segment`(
   `name` VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS `audience_list`(
-  `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
-  `created_at` TIMESTAMP NOT NULL,
-  `created_by` VARCHAR(255) NOT NULL,
-  `updated_at` TIMESTAMP DEFAULT NULL,
-  `update_by` VARCHAR(255) DEFAULT NULL,
-  `name` VARCHAR(255) NOT NULL
-);
-
 CREATE TABLE IF NOT EXISTS `audience_activity`(
   `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
   `created_at` TIMESTAMP NOT NULL,
@@ -228,7 +230,9 @@ CREATE TABLE IF NOT EXISTS `transmission`(
   `update_by` VARCHAR(255) DEFAULT NULL,
   `audience_id` BIGINT NOT NULL,
   `audience_email` VARCHAR(255) NOT NULL,
-  FOREIGN KEY (audience_id) REFERENCES audience(id)
+  `user_id` BIGINT NOT NULL,
+  FOREIGN KEY (audience_id) REFERENCES audience(id),
+  FOREIGN KEY (user_id) REFERENCES user(id)
 );
 
 CREATE TABLE IF NOT EXISTS `user_campaign`(

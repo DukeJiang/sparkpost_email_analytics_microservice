@@ -1,4 +1,4 @@
-package com.dukejiang.email_analytics.model.individual_model;
+package com.dukejiang.email_analytics.model;
 
 import com.dukejiang.email_analytics.model.Audience;
 import com.dukejiang.email_analytics.model.BaseEntity;

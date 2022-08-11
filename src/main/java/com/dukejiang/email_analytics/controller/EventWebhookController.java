@@ -3,9 +3,10 @@ package com.dukejiang.email_analytics.controller;
 import com.dukejiang.email_analytics.model.Audience;
 import com.dukejiang.email_analytics.model.Response;
 import com.dukejiang.email_analytics.model.Transmission;
-import com.dukejiang.email_analytics.model.individual_model.AudienceActivity;
-import com.dukejiang.email_analytics.model.individual_model.event_payload.Event;
+import com.dukejiang.email_analytics.model.AudienceActivity;
+import com.dukejiang.email_analytics.model.event_payload.Event;
 import com.dukejiang.email_analytics.repository.AudienceActivityRepository;
+import com.dukejiang.email_analytics.repository.AudienceRepository;
 import com.dukejiang.email_analytics.repository.TransmissionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,10 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @RestController
 @RequestMapping(path = "/analytics/webhook")
 public class EventWebhookController {
+
+    @Autowired
+    AudienceRepository audienceRepository;
+
     @Autowired
     AudienceActivityRepository audienceActivityRepository;
 

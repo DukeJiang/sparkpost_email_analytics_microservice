@@ -1,4 +1,4 @@
-package com.dukejiang.email_analytics.model.individual_model.event_payload;
+package com.dukejiang.email_analytics.model.event_payload;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;

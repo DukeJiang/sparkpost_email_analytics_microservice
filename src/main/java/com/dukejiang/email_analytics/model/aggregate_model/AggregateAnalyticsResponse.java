@@ -1,27 +1,25 @@
 package com.dukejiang.email_analytics.model.aggregate_model;
 
-import java.util.List;
-import java.util.Map;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-//@JsonInclude(JsonInclude.Include.NON_NULL)
-//@JsonPropertyOrder({
-//    "results"
-//})
-//@Generated("jsonschema2pojo")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class AggregateAnalyticsResponse {
-    @JsonProperty("results")
-    private List<AggregateResult> results;
-    @JsonIgnore
-    private Map<String, Object> additionalProperties;
-
-
+    @JsonProperty("count_sent")
+    private int countSent;
+    @JsonProperty("count_delivered")
+    private int countDelivered;
+    @JsonProperty("count_clicked")
+    private int countClicked;
+    @JsonProperty("count_opened")
+    private int countOpened;
+    @JsonProperty("count_unsubscribe")
+    private int countUnsubscribe;
+    @JsonProperty("count_bounced")
+    private int countBounced;
 }
 

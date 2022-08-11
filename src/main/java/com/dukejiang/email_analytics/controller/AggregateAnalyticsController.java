@@ -1,42 +1,87 @@
 package com.dukejiang.email_analytics.controller;
 
+import com.dukejiang.email_analytics.model.User;
+import com.dukejiang.email_analytics.model.request.AggregateAnalyticsRequest;
 import com.dukejiang.email_analytics.model.aggregate_model.AggregateAnalyticsResponse;
+import com.dukejiang.email_analytics.repository.AudienceActivityRepository;
+import com.dukejiang.email_analytics.repository.TransmissionRepository;
+import com.dukejiang.email_analytics.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.RequestEntity;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+
+import java.sql.Timestamp;
+import java.util.Optional;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 
 @Slf4j // logger
 @RestController
+@RequestMapping(path = "/analytics/aggregate")
 public class AggregateAnalyticsController {
-    @Value("${TESTING_DOMAIN}")
-    private String TESTING_DOMAIN;
+    enum EventType{
+        delivery,
+        click,
+        open,
+        list_unsubscribe,
+        link_unsubscribe,
+        bounce
+    }
+
+    private final TransmissionRepository transmissionRepository;
+    private final UserRepository userRepository;
+    private final AudienceActivityRepository audienceActivityRepository;
 
     @Autowired
-    WebClient webClient;
+    public AggregateAnalyticsController(TransmissionRepository transmissionRepository,
+                                        UserRepository userRepository,
+                                        AudienceActivityRepository audienceActivityRepository){
+        this.transmissionRepository = transmissionRepository;
+        this.userRepository = userRepository;
+        this.audienceActivityRepository = audienceActivityRepository;
+    }
+
+
+
 
     @RequestMapping(value={"/getAggregateAnalytics"}, method = GET)
     @ResponseBody
-    public Mono<AggregateAnalyticsResponse> getAggregateAnalytics() {
+    public Mono<AggregateAnalyticsResponse> getAggregateAnalytics(RequestEntity<AggregateAnalyticsRequest> requestEntity) {
         log.info("fetching aggregate analytics information...");
-        String from = "2022-07-01T00:00";
-        Mono<AggregateAnalyticsResponse> response = webClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/api/v1/metrics/deliverability/sending-domain")
-                        .queryParam("from", from)
-                        .queryParam("sending_domain", TESTING_DOMAIN)
-                        .queryParam("metrics", "count_sent,count_accepted,count_delivered,count_" +
-                                "nonprefetched_rendered,count_clicked,count_unique_clicked,count_unsubscribe")
-                        .build())
-                .retrieve()
-                .bodyToMono(AggregateAnalyticsResponse.class);
-        return response;
+        AggregateAnalyticsRequest incomingRequest = requestEntity.getBody();
+        assert incomingRequest != null;
+        int userId = incomingRequest.getUserId();
+        Timestamp from = incomingRequest.getFrom();
+        Timestamp to = incomingRequest.getTo();
+
+        //find target user
+        Optional<User> user = userRepository.findById(userId);
+        assert user.isPresent();
+        String domain = user.get().getDomain();
+        //get total transmission count
+        int totalTransmissionCnt = transmissionRepository.countAllByUser(user.get());
+        //get each event type count
+        int deliveryCnt = audienceActivityRepository.countAllByDomainAndEventTypeAndByCreateArBetween(domain, EventType.delivery.toString(), from, to);
+        int clickCnt = audienceActivityRepository.countAllByDomainAndEventTypeAndByCreateArBetween(domain, EventType.click.toString(), from, to);
+        int openCnt = audienceActivityRepository.countAllByDomainAndEventTypeAndByCreateArBetween(domain, EventType.open.toString(), from, to);
+        int unsubscribeCnt = audienceActivityRepository.countAllByDomainAndEventTypeAndByCreateArBetween(domain, EventType.list_unsubscribe.toString(), from, to) +
+                audienceActivityRepository.countAllByDomainAndEventTypeAndByCreateArBetween(domain, EventType.link_unsubscribe.toString(), from ,to);
+        int bounceCnt = audienceActivityRepository.countAllByDomainAndEventTypeAndByCreateArBetween(domain, EventType.bounce.toString(), from, to);
+
+        //compose response
+        AggregateAnalyticsResponse response = new AggregateAnalyticsResponse();
+        response.setCountSent(totalTransmissionCnt);
+        response.setCountClicked(clickCnt);
+        response.setCountDelivered(deliveryCnt);
+        response.setCountOpened(openCnt);
+        response.setCountUnsubscribe(unsubscribeCnt);
+        response.setCountBounced(bounceCnt);
+
+        return Mono.just(response);
     }
 }
