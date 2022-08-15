@@ -1,7 +1,7 @@
 package com.dukejiang.email_analytics.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -13,27 +13,30 @@ import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public class BaseEntity {
     @CreatedDate
-    @Column(updatable = false)
+    @Column(name = "created_at", updatable = false)
     @JsonIgnore
     private LocalDateTime createdAt;
 
     @CreatedBy
-    @Column(updatable = false)
+    @Column(name = "created_by", updatable = false)
     @JsonIgnore
     private String createdBy;
 
     @LastModifiedDate
-    @Column(insertable = false)
+    @Column(name = "updated_at", insertable = false)
     @JsonIgnore
     private LocalDateTime updatedAt;
 
     @LastModifiedBy
-    @Column(insertable = false)
+    @Column(name = "updated_by", insertable = false)
     @JsonIgnore
     private String updatedBy;
 }

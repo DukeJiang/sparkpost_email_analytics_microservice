@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class Request {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:MM")
-    private Timestamp from;
+    private String from;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:MM")
-    private Timestamp to;
+    private String to;
 }

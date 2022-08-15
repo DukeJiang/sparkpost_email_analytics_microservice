@@ -1,14 +1,18 @@
 package com.dukejiang.email_analytics.model;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
-@Data
 @Entity
+@Getter
+@Setter
 @Table(name="user")
 @Validated
 public class User extends BaseEntity{
@@ -72,4 +76,12 @@ public class User extends BaseEntity{
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY,
                cascade = CascadeType.PERSIST, targetEntity = Transmission.class)
     private Set<Transmission> transmissions;
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @JoinTable(name = "user_audience",
+                joinColumns = {
+                    @JoinColumn(name = "user_id", referencedColumnName = "id")},
+                inverseJoinColumns = {
+                    @JoinColumn(name = "audience_id", referencedColumnName = "id")})
+    private Set<Audience> audiences = new HashSet<>();
 }

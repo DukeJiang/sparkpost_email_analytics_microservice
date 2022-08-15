@@ -2,6 +2,8 @@ package com.dukejiang.email_analytics.model;
 
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.validation.annotation.Validated;
 
@@ -10,8 +12,9 @@ import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.util.Set;
 
-@Data
 @Entity
+@Getter
+@Setter
 @Table(name="audience")
 @Validated
 public class Audience extends BaseEntity{
@@ -47,4 +50,5 @@ public class Audience extends BaseEntity{
     @OneToMany(mappedBy = "audience", fetch = FetchType.LAZY,
             cascade = CascadeType.PERSIST, targetEntity = Transmission.class)
     private Set<Transmission> transmissions;
+
 }

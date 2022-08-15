@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import reactor.core.publisher.Mono;
 
-import java.sql.Timestamp;
 import java.util.Optional;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -56,22 +55,33 @@ public class AggregateAnalyticsController {
         AggregateAnalyticsRequest incomingRequest = requestEntity.getBody();
         assert incomingRequest != null;
         int userId = incomingRequest.getUserId();
-        Timestamp from = incomingRequest.getFrom();
-        Timestamp to = incomingRequest.getTo();
+        String from = incomingRequest.getFrom();
+        String to = incomingRequest.getTo();
 
         //find target user
         Optional<User> user = userRepository.findById(userId);
         assert user.isPresent();
-        String domain = user.get().getDomain();
         //get total transmission count
         int totalTransmissionCnt = transmissionRepository.countAllByUser(user.get());
         //get each event type count
-        int deliveryCnt = audienceActivityRepository.countAllByDomainAndEventTypeAndByCreateArBetween(domain, EventType.delivery.toString(), from, to);
-        int clickCnt = audienceActivityRepository.countAllByDomainAndEventTypeAndByCreateArBetween(domain, EventType.click.toString(), from, to);
-        int openCnt = audienceActivityRepository.countAllByDomainAndEventTypeAndByCreateArBetween(domain, EventType.open.toString(), from, to);
-        int unsubscribeCnt = audienceActivityRepository.countAllByDomainAndEventTypeAndByCreateArBetween(domain, EventType.list_unsubscribe.toString(), from, to) +
-                audienceActivityRepository.countAllByDomainAndEventTypeAndByCreateArBetween(domain, EventType.link_unsubscribe.toString(), from ,to);
-        int bounceCnt = audienceActivityRepository.countAllByDomainAndEventTypeAndByCreateArBetween(domain, EventType.bounce.toString(), from, to);
+        int deliveryCnt = audienceActivityRepository.countByAudienceListAndEventBetween(userId,
+                                                                        EventType.delivery.toString(),
+                                                                        from, to);
+        int clickCnt = audienceActivityRepository.countByAudienceListAndEventBetween(userId,
+                                                                        EventType.click.toString(),
+                                                                        from, to);
+        int openCnt = audienceActivityRepository.countByAudienceListAndEventBetween(userId,
+                                                                        EventType.open.toString(),
+                                                                        from, to);
+        int unsubscribeCnt = audienceActivityRepository.countByAudienceListAndEventBetween(userId,
+                                                                        EventType.list_unsubscribe.toString(),
+                                                                        from, to) +
+                audienceActivityRepository.countByAudienceListAndEventBetween(userId,
+                                                                        EventType.link_unsubscribe.toString(),
+                                                                        from ,to);
+        int bounceCnt = audienceActivityRepository.countByAudienceListAndEventBetween(userId,
+                                                                        EventType.bounce.toString(),
+                                                                        from, to);
 
         //compose response
         AggregateAnalyticsResponse response = new AggregateAnalyticsResponse();

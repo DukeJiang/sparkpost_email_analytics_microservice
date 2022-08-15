@@ -3,12 +3,15 @@ package com.dukejiang.email_analytics.model;
 import com.dukejiang.email_analytics.model.Audience;
 import com.dukejiang.email_analytics.model.BaseEntity;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 
-@Data
 @Entity
+@Getter
+@Setter
 @Table(name = "audience_activity")
 public class AudienceActivity extends BaseEntity {
     @Id
@@ -23,7 +26,7 @@ public class AudienceActivity extends BaseEntity {
     @Column(name = "audience_email")
     private String audience_email;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "audience_id", referencedColumnName = "id", nullable = false)
     private Audience audience;
 }
